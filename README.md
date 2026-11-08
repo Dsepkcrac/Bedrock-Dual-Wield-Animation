@@ -1,49 +1,88 @@
-# 基岩版双手持物视觉动画教程 (TwoHandHold Addon)
+# 基岩版双手持物视觉动画教程（TwoHandHold）
 
-[![Minecraft Bedrock](https://img.shields.io/badge/Minecraft-Bedrock-green)](https://www.minecraft.net/)
-[![Format Version](https://img.shields.io/badge/format__version-1.20.50-blue)]()
+[![Minecraft Bedrock](https://img.shields.io/badge/Minecraft-Bedrock%20Edition-green)](https://www.minecraft.net/)
+[![format_version](https://img.shields.io/badge/format__version-1.20.50-blue)](https://wiki.bedrock.dev/)
 
-欢迎来到本教程！这是一个为 Minecraft 基岩版（Bedrock Edition）制作的附加包（Addon）开源示例项目。
+一个面向 Minecraft 基岩版（Bedrock Edition）的附加包（Addon）示例项目，用于讲解如何通过覆盖**玩家动画**（Player Animation）与**动画控制器**（Animation Controller），在第三人称视角下实现“双手持物”的视觉效果，例如双手持枪、双手握剑。
 
-本项目将教你如何通过修改**玩家自身的动画**（Player Animation）和**动画控制器**（Animation Controller），实现**第三人称视角下的“双手持物”视觉效果**（例如双手持枪、双手握剑等）。而不是仅仅修改物品的模型。
+本项目的思路是修改**玩家自身的骨骼动画**，而不是修改物品模型。
 
----
+## 目录
 
-## ✨ 效果展示
+- [效果展示](#效果展示)
+- [快速开始](#快速开始)
+- [实现原理](#实现原理)
+- [目录结构](#目录结构)
+- [分步实现](#分步实现)
+  - [步骤一：定义触发物品](#步骤一定义触发物品)
+  - [步骤二：编写玩家动画](#步骤二编写玩家动画)
+  - [步骤三：编写动画控制器](#步骤三编写动画控制器)
+  - [步骤四：将动画挂载到玩家](#步骤四将动画挂载到玩家)
+  - [步骤五：配置资源包与行为包清单](#步骤五配置资源包与行为包清单)
+- [常见问题](#常见问题)
+- [参考资料](#参考资料)
+- [许可证](#许可证)
 
-*(建议：在仓库里新建一个 `images` 文件夹，上传你的游戏截图命名为 `demo.png`，然后把下面这行括号里的文字替换掉)*
+## 效果展示
 
-<!-- ![双手持握效果](images/demo.png) -->
-> *此处应有第三人称双手持物效果图*
+![双手持物效果示意](images/demo.png)
 
----
+*图 1：第三人称视角下的双手持枪姿势。*
 
-## 📥 快速测试与安装
+## 快速开始
 
-如果你想直接进游戏体验效果：
-1. 点击上方目录进入 `releases` 文件夹。
-2. 下载 `TwoHandHold.mcaddon` 文件。
-3. 双击下载的文件，Minecraft 会自动导入资源包（RP）和行为包（BP）。
-4. 创建新世界，**务必开启“假日创作者功能”等实验性选项**，并在创造模式物品栏找到“双手持握测试物”。
+### 环境要求
 
----
+- Minecraft 基岩版 **1.20.50** 及以上版本。
+- 创建世界时开启**“假日创作者功能”（Holiday Creator Features）**等实验性选项；自定义物品与玩家动画挂载依赖该开关。
 
-## 🧠 核心实现思路解析
+### 安装步骤
 
-在基岩版中，实现双手持物**不是去修改物品的模型**，而是**修改玩家自身的骨骼动画**。
+1. 打开仓库的 `releases` 目录，下载 `TwoHandHold.mcaddon` 文件。
+2. 双击该文件，Minecraft 会自动导入资源包（RP）与行为包（BP）。
+3. 新建世界，在“资源包”和“行为包”页面中分别启用导入的两个包。
+4. 进入游戏，在创造模式物品栏中找到“双手持握测试物”并手持，切换到第三人称视角即可看到效果。
 
-主要分为三个步骤：
-1. **定义物品**：定义一把专属物品，作为触发动作的“开关”。
-2. **编写动画**：编写玩家手臂动画，让左右手在第三人称下摆出特定姿势。
-3. **逻辑挂载**：利用动画控制器和 Molang，让玩家在拿着这把物品时，覆盖掉原版默认的动作。
+## 实现原理
 
----
+实现双手持物**不需要修改物品模型**，而是覆盖玩家自身的骨骼动画。整个流程分为三个环节：
 
-## 📂 代码详细拆解
+| 环节 | 文件位置 | 作用 |
+| --- | --- | --- |
+| 定义物品 | `BP/items/` | 提供一把专属物品，作为触发动画的“开关” |
+| 编写动画 | `RP/animations/` | 让左右手臂在第三人称下摆出持物姿势 |
+| 动画控制器 | `RP/animation_controllers/` | 结合 Molang 判断手持物品，替换原版默认动作 |
 
-### 第一步：定义触发物品 (行为包 BP)
+三者的关系是：动画控制器依据 Molang 查询结果切换状态，状态中播放自定义动画，最终覆盖玩家手臂的默认姿态。
 
-在 `BP/items/two_hand_item.json` 中，我们定义了一个名为 `demo:gun` 的物品。当玩家手持这个物品时，会触发我们的自定义动画。
+## 目录结构
+
+```text
+TwoHandHold/
+├── BP/                                  # 行为包
+│   ├── manifest.json
+│   └── items/
+│       └── two_hand_item.json
+└── RP/                                  # 资源包
+    ├── manifest.json
+    ├── animations/
+    │   └── two_hand_hold.animation.json
+    ├── animation_controllers/
+    │   └── two_hand_hold.animation_controllers.json
+    ├── entity/
+    │   └── player.entity.json
+    ├── textures/
+    │   └── items/
+    │       └── two_hand_item.png
+    └── texts/
+        └── zh_CN.lang
+```
+
+## 分步实现
+
+### 步骤一：定义触发物品
+
+在 `BP/items/two_hand_item.json` 中定义名为 `demo:gun` 的自定义物品。玩家手持该物品时，即触发后续的自定义动画。
 
 ```json
 {
@@ -51,76 +90,181 @@
   "minecraft:item": {
     "description": {
       "identifier": "demo:gun",
-      "menu_category": { "category": "items" }
+      "menu_category": {
+        "category": "items"
+      }
     },
     "components": {
-      "minecraft:icon": { "texture": "two_hand_item" },
-      "minecraft:display_name": { "value": "双手持握测试物" },
+      "minecraft:icon": {
+        "texture": "two_hand_item"
+      },
+      "minecraft:display_name": {
+        "value": "双手持握测试物"
+      },
       "minecraft:max_stack_size": 1
     }
   }
 }
-💡 提示：记得在资源包的 textures/item_texture.json 中注册 two_hand_item 贴图，否则游戏内会显示紫黑方块。
+```
 
-第二步：制作双手持握动画 (资源包 RP)
-在 RP/animations/player_armor.animation.json 中，我们为玩家的 rightArm（右手）和 leftArm（左手）设定了旋转角度。
+几点说明：
 
-json
+- `minecraft:icon` 中的 `two_hand_item` 是纹理短名，需在 `RP/textures/item_texture.json` 中映射到 `textures/items/two_hand_item`。
+- 物品标识符必须带命名空间（如 `demo:gun`），且不能与既有的原版物品重名。
+- `menu_category` 决定物品出现在创造模式物品栏的哪个分类中。
+
+### 步骤二：编写玩家动画
+
+在 `RP/animations/two_hand_hold.animation.json` 中为玩家双臂编写持物姿势。手臂骨骼名为 `rightArm` 与 `leftArm`，旋转角度采用角度制，顺序为 `[x, y, z]`。
+
+```json
 {
-	"format_version": "1.8.0",
-	"animations": {
-		"animation.player.gun": {
-			"loop": true,
-			"bones": {
-				"rightArm": { "rotation": ["-90 - this", 0, 0] },
-				"leftArm": { "rotation": [-77.7968, 51.8659, 9.654] }
-			}
-		}
-	}
-}
-⚠️ 注意：骨骼名称极其敏感，必须严格使用 rightArm 和 leftArm。你可以使用 Blockbench 直观地调整这些旋转数值并导出。
-
-第三步：挂载动画控制器 (资源包 RP)
-在 RP/animation_controllers/player.animation_controllers.json 中，我们新建了一个独立的控制器 controller.animation.player.gun。
-它的逻辑非常纯粹：只要玩家手里拿着短名为 gun 的物品，就执行动画。
-
-json
-"controller.animation.player.gun": {
-  "initial_state": "default",
-  "states": {
-    "default": {
-      "animations": [
-        {
-          "gun": "query.get_equipped_item_name == 'gun'"
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.player.two_hand_hold": {
+      "loop": true,
+      "animation_length": 1.0,
+      "bones": {
+        "rightArm": {
+          "rotation": [-75, -15, 0]
+        },
+        "leftArm": {
+          "rotation": [-75, 15, 0]
         }
-      ]
+      }
     }
   }
 }
-第四步：将控制器注入玩家主逻辑 (资源包 RP)
-这是最关键的一步！在 RP/entity/player.entity.json 中，我们修改了原版的玩家实体定义。
+```
 
-1. 在 animations 列表中，注册我们新建的动画和控制器：
+要点：
 
-json
-"gun": "animation.player.gun",
-"gun_controller": "controller.animation.player.gun"
-2. 在 third_person 状态（第三人称）下，通过 Molang 让它在拿枪时生效：
+- 动画仅调整手臂旋转，躯干与头部保持原版动作，观感更自然。
+- 具体角度需按武器模型的实际朝向微调；必要时可同时对 `rightItem`、`leftItem` 骨骼做位移或旋转补偿。
+- 文件名建议与动画名保持一致，便于后续维护。
 
-json
+### 步骤三：编写动画控制器
+
+在 `RP/animation_controllers/two_hand_hold.animation_controllers.json` 中，根据玩家手持物品切换动画状态。
+
+```json
 {
-  "gun_controller": "query.get_equipped_item_name == 'gun'"
+  "format_version": "1.10.0",
+  "animation_controllers": {
+    "controller.animation.player.two_hand_hold": {
+      "initial_state": "default",
+      "states": {
+        "default": {
+          "transitions": [
+            {
+              "hold": "query.get_equipped_item_name == 'gun'"
+            }
+          ]
+        },
+        "hold": {
+          "animations": [
+            "two_hand_hold"
+          ],
+          "transitions": [
+            {
+              "default": "query.get_equipped_item_name != 'gun'"
+            }
+          ]
+        }
+      }
+    }
+  }
 }
-因为我们是在 third_person 状态的动画列表最末尾追加了 gun_controller，所以它会覆盖原版默认的 holding 动画。
+```
 
-⚠️ 新人避坑指南
-严格区分大小写与英文：所有文件路径、动画名、骨骼名请永远使用纯英文小写，不能使用中文。
+要点：
 
-副手触发的冲突：目前的逻辑 query.get_equipped_item_name == 'gun' 没有指定是哪只手。如果你想让逻辑更严谨（比如只有主手拿枪时才触发），可以修改为 query.get_equipped_item_name('main_hand') == 'gun'。
+- `query.get_equipped_item_name` 返回不带命名空间的物品短名，因此判断 `gun` 而非 `demo:gun`。
+- 状态内 `animations` 数组中的 `two_hand_hold` 是短名，需在客户端实体文件中映射到动画全名。
+- 动画控制器会持续覆盖原版手臂动画，无需额外设置动画优先级。
 
-动画优先级：如果发现动作没生效，请检查你的控制器是否放到了正确的状态（third_person）下，以及 player.entity.json 的层级嵌套是否正确。
+### 步骤四：将动画挂载到玩家
 
-📜 开源协议
-本项目基于 MIT License 开源，你可以自由修改、分发并用于自己的作品中。
+在 `RP/entity/player.entity.json` 中登记动画与控制器，并通过 `scripts.animate` 启用控制器。
 
-如果这个教程帮到了你，欢迎点个 Star ⭐！
+```json
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "minecraft:player",
+      "animations": {
+        "two_hand_hold": "animation.player.two_hand_hold",
+        "two_hand_hold_controller": "controller.animation.player.two_hand_hold"
+      },
+      "scripts": {
+        "animate": [
+          "two_hand_hold_controller"
+        ]
+      }
+    }
+  }
+}
+```
+
+覆盖原版 `player.entity.json` 时，应保留文件原有的其余字段，仅追加 `animations` 与 `scripts` 内容，避免玩家渲染出现异常。
+
+### 步骤五：配置资源包与行为包清单
+
+两个包各需一份 `manifest.json`，其中 `header.uuid` 与 `modules[].uuid` 不能重复，且资源包需通过 `dependencies` 声明对行为包的依赖：
+
+```json
+{
+  "format_version": 2,
+  "header": {
+    "name": "TwoHandHold BP",
+    "description": "双手持物示例项目（行为包）",
+    "uuid": "00000000-0000-0000-0000-000000000000",
+    "version": [1, 0, 0],
+    "min_engine_version": [1, 20, 50]
+  },
+  "modules": [
+    {
+      "type": "data",
+      "uuid": "00000000-0000-0000-0000-000000000001",
+      "version": [1, 0, 0]
+    }
+  ]
+}
+```
+
+示例中的 UUID 必须替换为实际生成的值（任意 UUID v4 生成器均可）。
+
+## 常见问题
+
+**Q1：为什么只有第三人称才有双手持物效果？**
+
+玩家骨骼动画作用于第三人称模型。第一人称手臂由独立的渲染逻辑控制，需另行制作第一人称动画或调整相机，才能在第一人称下看到相同姿势。
+
+**Q2：为什么不用挂件（attachable）/ 物品模型来实现？**
+
+挂件只能改变物品自身的外观，无法改变手臂姿态。双手持物的关键在于让两只手同时指向持物点，因此必须覆盖玩家动画。
+
+**Q3：动画完全不生效，如何排查？**
+
+按以下顺序检查：
+
+1. 两个包的 `manifest.json` 是否被游戏正确识别，UUID 是否重复或格式错误。
+2. 世界中是否开启了“假日创作者功能”等实验性选项。
+3. `player.entity.json` 中的动画短名与控制器短名是否一致，`scripts.animate` 是否引用了控制器。
+4. Molang 判断的字符串是否与 `query.get_equipped_item_name` 的返回值一致（不带命名空间）。
+5. 是否被其他更高层级的动画或模型覆盖。
+
+**Q4：手持长剑时朝向不对怎么办？**
+
+先调整 `rightItem` / `leftItem` 骨骼的旋转，再微调手臂角度。建议在游戏中逐帧对照武器握持点，避免仅凭经验值盲调。
+
+## 参考资料
+
+- [Microsoft Learn：Minecraft Creator 文档](https://learn.microsoft.com/minecraft/creator/)
+- [Bedrock Wiki：附加包开发指南](https://wiki.bedrock.dev/)
+- [Blockbench：模型与动画编辑器](https://www.blockbench.net/)
+
+## 许可证
+
+本项目暂未声明开源许可证。如需公开分发，建议补充 `LICENSE` 文件（例如 MIT 许可证），并同步更新页面顶部的徽章信息。

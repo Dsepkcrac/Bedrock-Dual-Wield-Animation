@@ -26,6 +26,7 @@
 - [改成你自己的物品](#改成你自己的物品)
 - [可改进项](#可改进项)
 - [参考资料](#参考资料)
+- [许可证](#许可证)
 
 ## 效果说明
 
@@ -33,13 +34,15 @@
 - **生效视角**：仅第三人称。第一人称手臂由独立的第一人称动画控制，本示例不涉及。
 - **未触发时**：控制器不播放自定义动画，玩家动作与原版完全一致。
 
+效果演示：
+
 <div align="center">
   <img src="docs/images/demo.png" alt="双手持握效果展示" width="50%" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
 </div>
 
 ## 快速体验
 
-1. 下载 [releases/TwoHandHold-Addon.mcaddon](releases/TwoHandHold-Addon.mcaddon)。
+1. 到 [Releases](https://github.com/Dsepkcrac/Bedrock-Dual-Wield-Animation/releases) 页面下载最新版 `TwoHandHold-Addon.mcaddon`（仓库内也保留了一份源码目录：[releases/TwoHandHold-Addon.mcaddon](releases/TwoHandHold-Addon.mcaddon)）。
 2. 双击该文件，Minecraft 会自动导入资源包（RP）与行为包（BP）。
 3. 新建世界，在“资源包”与“行为包”页面分别启用这两个包，并开启**“假日创作者功能”**等实验性选项。
 4. 进入游戏，在创造模式物品栏中找到“双手持握测试物”，手持后切换到第三人称视角。
@@ -280,16 +283,22 @@ TwoHandHold-Addon/
 
 ## 可改进项
 
-以下是当前示例中沿袭下来、但不影响运行的规范问题，可作为维护清单：
+以下是当前示例中可继续改进的地方，都不影响运行，可作为维护清单：
 
 - **命名不一致**：`player_armor.animation.json` 建议改名为 `gun.animation.json`，与动画 ID 对应。
 - **版本号不统一**：`manifest.json` 的 `min_engine_version` 是 `1.20.0`，而物品的 `format_version` 是 `1.20.50`，建议统一提升到 `1.20.50`。
 - **缩进不统一**：`controller.animation.player.gun` 块的缩进层级比其他控制器浅，建议格式化后再提交。
 - **缺少语言文件**：显示名直接写在物品组件里，多语言场景建议改用 `RP/texts/*.lang` + `minecraft:display_name` 的键值形式。
-- **缺少效果图与许可证**：建议补充演示截图与 `LICENSE`。
+- **未适配第一人称**：第一人称持物仍是原版动作，如需一致效果要另写第一人称动画。
 
 ## 参考资料
 
 - [Microsoft Learn：Minecraft Creator 文档](https://learn.microsoft.com/minecraft/creator/)
 - [Bedrock Wiki：附加包开发指南](https://wiki.bedrock.dev/)
 - [Blockbench：模型与动画编辑](https://www.blockbench.net/)
+
+## 许可证
+
+本项目基于 [MIT 许可证](LICENSE) 发布，版权归 © 2026 Dsepkcrac 所有。转载、修改、二次分发请保留原始版权声明。
+
+

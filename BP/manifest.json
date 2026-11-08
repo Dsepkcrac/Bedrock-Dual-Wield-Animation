@@ -1,0 +1,17 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "双手持握行为包",
+    "description": "为视觉包提供逻辑支持",
+    "uuid": "11ef8c2e-d9bc-4c6b-9e07-7d2517a6efa8",
+    "version": [1, 0, 0],
+    "min_engine_version": [1, 20, 0]
+  },
+  "modules": [
+    {
+      "type": "data",
+      "uuid": "1248f9da-cfde-48d5-af00-5feb95609969",
+      "version": [1, 0, 0]
+    }
+  ]
+}

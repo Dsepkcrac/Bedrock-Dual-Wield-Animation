@@ -1,0 +1,17 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "双手持握视觉包",
+    "description": "让第三人称双手持物品",
+    "uuid": "b35faf08-c50a-4932-bf41-6947c9abc551",
+    "version": [1, 0, 0],
+    "min_engine_version": [1, 20, 0]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "28758b6d-f0a7-43c7-b105-3ef0a69145ee",
+      "version": [1, 0, 0]
+    }
+  ]
+}

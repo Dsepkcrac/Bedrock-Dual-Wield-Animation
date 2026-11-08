@@ -1,0 +1,9 @@
+{
+  "resource_pack_name": "two_hand_hold",
+  "texture_name": "atlas.items",
+  "texture_data": {
+    "two_hand_item": {
+      "textures": "textures/items/two_hand_item"
+    }
+  }
+}

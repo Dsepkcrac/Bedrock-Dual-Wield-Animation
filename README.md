@@ -33,7 +33,9 @@
 - **生效视角**：仅第三人称。第一人称手臂由独立的第一人称动画控制，本示例不涉及。
 - **未触发时**：控制器不播放自定义动画，玩家动作与原版完全一致。
 
-![双手持握效果展示](docs/images/demo.png)
+<div align="center">
+  <img src="docs/images/demo.png" alt="双手持握效果展示" width="50%" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
+</div>
 
 ## 快速体验
 
